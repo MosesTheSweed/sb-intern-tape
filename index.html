@@ -148,9 +148,9 @@
       return +(i.sharePct * (1 + (ACT_RANK[i.activation] || 0) * 0.15)).toFixed(3);
     }
     function cmpBest(a, b) {
-      const live = Number(!dormant(a.status)) - Number(!dormant(b.status));
+      const live = Number(!dormant(b.status)) - Number(!dormant(a.status));
       if (live) return live;
-      const par = Number(parentOn(a.parentStatus)) - Number(parentOn(b.parentStatus));
+      const par = Number(parentOn(b.parentStatus)) - Number(parentOn(a.parentStatus));
       if (par) return par;
       if (b.sharePct !== a.sharePct) return b.sharePct - a.sharePct;
       const act = (ACT_RANK[b.activation] || 0) - (ACT_RANK[a.activation] || 0);
