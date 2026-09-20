@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Intern Tape · Stonk Interns</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" />
+  <style>
+    :root {
+      --bg: #070806; --surface: #12150f; --raised: #1a1f16;
+      --fg: #e7eadc; --muted: #8b9178; --lime: #c6f000;
+      --ink: #0b0d08; --line: #2a3124; --warn: #ff6a3d;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: var(--bg); color: var(--fg);
+      font-family: "IBM Plex Sans", system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+    a { color: inherit; }
+    button { cursor: pointer; font-family: inherit; }
+    header, .note, main { max-width: 72rem; margin: 0 auto; padding: 0 1.25rem; }
+    header { display: flex; flex-wrap: wrap; gap: .75rem; align-items: end;
+      justify-content: space-between; padding-top: 1rem; padding-bottom: .75rem; }
+    .kicker { font-family: "IBM Plex Mono", monospace; font-size: 11px;
+      letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+    h1 { margin: 0; font-size: 1.35rem; }
+    .meta { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--muted); }
+    .note { padding: .6rem 1.25rem; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+      background: var(--raised); font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--muted); }
+    main { display: grid; gap: 1rem; padding: 1.1rem 1.25rem 2.5rem; }
+    @media (min-width: 960px) { main { grid-template-columns: 1.2fr .9fr; } }
+    .tools { display: flex; flex-direction: column; gap: .5rem; margin-bottom: .75rem; }
+    @media (min-width: 640px) { .tools { flex-direction: row; } }
+    input[type="search"] {
+      flex: 1; height: 44px; border: 1px solid var(--line); background: var(--surface);
+      color: var(--fg); padding: 0 .9rem; font-family: "IBM Plex Mono", monospace; font-size: 13px; border-radius: 6px;
+    }
+    .filters { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+    .filters button {
+      height: 44px; border: 1px solid var(--line); background: var(--surface); color: var(--muted);
+      font-family: "IBM Plex Mono", monospace; font-size: 11px; border-radius: 6px;
+    }
+    .filters button.on { background: var(--lime); color: var(--ink); border-color: var(--lime); }
+    .tablewrap { overflow-x: auto; border: 1px solid var(--line); background: var(--surface); border-radius: 6px; }
+    table { width: 100%; border-collapse: collapse; font-family: "IBM Plex Mono", monospace; font-size: 13px; }
+    th { text-align: left; color: var(--muted); font-weight: 500; font-size: 11px; padding: .5rem .75rem; border-bottom: 1px solid var(--line); }
+    td { padding: .65rem .75rem; border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent); }
+    tr.row { cursor: pointer; }
+    tr.row:hover { background: var(--raised); }
+    tr.row.sel { background: color-mix(in srgb, var(--lime) 12%, transparent); }
+    .share { color: var(--lime); }
+    .muted { color: var(--muted); }
+    .foot { padding: .5rem .75rem; font-size: 11px; color: var(--muted); border-top: 1px solid var(--line); }
+    .card { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 1rem; }
+    .card-head { display: flex; justify-content: space-between; gap: .75rem; align-items: flex-start; }
+    h2 { margin: .1rem 0; font-size: 1.6rem; }
+    .os {
+      display: inline-flex; align-items: center; height: 44px; padding: 0 .9rem; background: var(--lime);
+      color: var(--ink); text-decoration: none; font-family: "IBM Plex Mono", monospace; font-size: 12px; border-radius: 6px;
+    }
+    .os.dim { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+    .warn { margin-top: .75rem; border: 1px solid color-mix(in srgb, var(--warn) 40%, transparent);
+      background: color-mix(in srgb, var(--warn) 10%, transparent); color: var(--warn); padding: .55rem .7rem; font-size: 13px; border-radius: 6px; }
+    .info { margin-top: .75rem; border: 1px solid var(--line); padding: .55rem .7rem; font-size: 12px; color: var(--muted);
+      font-family: "IBM Plex Mono", monospace; border-radius: 6px; }
+    dl { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin: 1rem 0 0; }
+    dt { font-size: 11px; color: var(--muted); font-family: "IBM Plex Mono", monospace; }
+    dd { margin: .15rem 0 0; font-family: "IBM Plex Mono", monospace; font-size: 14px; }
+    dd.hot { color: var(--lime); }
+    .sib { margin-top: 1rem; padding-top: .75rem; border-top: 1px solid var(--line);
+      font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <p class="kicker">intern tape · robinhood chain</p>
+      <h1>Stonk Interns research</h1>
+    </div>
+    <p class="meta" id="snapMeta">loading snapshot…</p>
+  </header>
+  <p class="note">Read-only. OpenSea is the buy button. Data is a pushed snapshot (Turbo Board model), not a live RPC from your browser.</p>
+  <main>
+    <section>
+      <div class="tools">
+        <input id="q" type="search" placeholder="Intern #, broker #, title" />
+        <div class="filters" id="filters"></div>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Intern</th><th>Parent</th><th>Share</th><th>Title</th><th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+        <div class="foot" id="foot"></div>
+      </div>
+    </section>
+    <aside class="card" id="dossier">Select an intern.</aside>
+  </main>
+  <script>
+    const FILTERS = [
+      ["all", "All"],
+      ["paying", "% > 0"],
+      ["employed", "Live"],
+      ["dormant", "Dormant"],
+    ];
+    let dump = null, filter = "all", sel = 3474, q = "";
+
+    function dormant(s) { return (s || "").toLowerCase().includes("dormant"); }
+    function shortAddr(a) {
+      if (!a || a.length < 12) return a || "—";
+      return a.slice(0, 6) + "…" + a.slice(-4);
+    }
+    function rows() {
+      const needle = q.trim().toLowerCase();
+      return dump.interns.filter((i) => {
+        if (filter === "paying" && i.sharePct <= 0) return false;
+        if (filter === "dormant" && !dormant(i.status)) return false;
+        if (filter === "employed" && dormant(i.status)) return false;
+        if (!needle) return true;
+        return String(i.id).includes(needle) || String(i.parent).includes(needle)
+          || (i.title || "").toLowerCase().includes(needle)
+          || (i.class || "").toLowerCase().includes(needle);
+      });
+    }
+    function renderFilters() {
+      document.getElementById("filters").innerHTML = FILTERS.map(([k, lab]) =>
+        `<button type="button" data-f="${k}" class="${filter === k ? "on" : ""}">${lab}</button>`
+      ).join("");
+    }
+    function renderTable() {
+      const list = rows();
+      document.getElementById("tbody").innerHTML = list.map((i) => `
+        <tr class="row ${sel === i.id ? "sel" : ""}" data-id="${i.id}">
+          <td>#${i.id} <span class="muted">${i.class || ""} ${i.version || ""}</span></td>
+          <td>#${i.parent}</td>
+          <td class="share">${i.share}</td>
+          <td class="muted">${i.title || ""}</td>
+          <td class="muted">${i.status || ""}</td>
+        </tr>`).join("");
+      const extra = dump.sampled < dump.total
+        ? `Sample of ${dump.sampled} / ${dump.total}. Run crawl_interns.py for the full set.`
+        : `${list.length} shown · ${dump.sampled} in snapshot`;
+      document.getElementById("foot").textContent = extra;
+    }
+    function renderDossier() {
+      const list = rows();
+      const row = dump.interns.find((i) => i.id === sel) || list[0];
+      const el = document.getElementById("dossier");
+      if (!row) { el.textContent = "Select an intern."; return; }
+      const sib = dump.interns.find((i) => i.parent === row.parent && i.id !== row.id);
+      const live = !dormant(row.status);
+      const furlough = (row.parentStatus || "").toLowerCase() !== "active";
+      el.innerHTML = `
+        <div class="card-head">
+          <div>
+            <p class="kicker">Dossier</p>
+            <h2>Intern #${row.id}</h2>
+            <p class="muted">${row.class} ${row.version} · parent broker #${row.parent}</p>
+          </div>
+          <a class="os ${live ? "" : "dim"}" href="${row.opensea}" target="_blank" rel="noreferrer">OpenSea</a>
+        </div>
+        ${furlough ? `<p class="warn">Parent not Active — intern slice is furloughed.</p>` : ""}
+        ${!live ? `<p class="info">Dormant in parent TBA. No listing until the broker mints it out.</p>` : ""}
+        <dl>
+          <div><dt>Pay share</dt><dd class="hot">${row.share}</dd></div>
+          <div><dt>Job title</dt><dd>${row.title || "—"}</dd></div>
+          <div><dt>Activation</dt><dd>${row.activation || "—"}</dd></div>
+          <div><dt>Intern status</dt><dd>${row.status || "—"}</dd></div>
+          <div><dt>Parent status</dt><dd>${row.parentStatus || "—"}</dd></div>
+          <div><dt>Parent tier</dt><dd>${row.parentTier || "—"}</dd></div>
+          <div><dt>Intern TBA</dt><dd>${shortAddr(row.wallet)}</dd></div>
+          <div><dt>Owner</dt><dd>${shortAddr(row.owner)}</dd></div>
+        </dl>
+        <p class="sib">${sib
+          ? `Other intern on broker #${row.parent}: #${sib.id} · ${sib.share} · ${sib.title} · ${(sib.sharePct + row.sharePct).toFixed(2)}% combined (cap 5%).`
+          : "Sibling intern not in this snapshot yet."}</p>`;
+    }
+    function render() { renderFilters(); renderTable(); renderDossier(); }
+
+    document.getElementById("filters").addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-f]");
+      if (!b) return;
+      filter = b.dataset.f;
+      render();
+    });
+    document.getElementById("tbody").addEventListener("click", (e) => {
+      const tr = e.target.closest("tr[data-id]");
+      if (!tr) return;
+      sel = Number(tr.dataset.id);
+      render();
+    });
+    document.getElementById("q").addEventListener("input", (e) => {
+      q = e.target.value;
+      render();
+    });
+
+    fetch("interns.json")
+      .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then((d) => {
+        dump = d;
+        document.getElementById("snapMeta").textContent =
+          `${d.sampled} / ${d.total} · ${d.updatedAt || "sample"}`;
+        if (!d.interns.some((i) => i.id === 3474) && d.interns[0]) sel = d.interns[0].id;
+        render();
+      })
+      .catch((e) => {
+        document.getElementById("snapMeta").textContent = "failed to load interns.json";
+        document.getElementById("dossier").textContent = String(e);
+      });
+  </script>
+</body>
+</html>
