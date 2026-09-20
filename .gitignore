@@ -2,3 +2,4 @@ intern-tape.log
 .intern.lock
 __pycache__/
 *.pyc
+opensea.key
