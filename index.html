@@ -13,9 +13,10 @@
       --ink: #0b0d08; --line: #2a3124; --warn: #ff6a3d;
     }
     * { box-sizing: border-box; }
-    html, body { margin: 0; background: var(--bg); color: var(--fg);
+    html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg);
       font-family: "IBM Plex Sans", system-ui, sans-serif;
-      -webkit-font-smoothing: antialiased; overflow-x: clip; }
+      -webkit-font-smoothing: antialiased; overflow: hidden; }
+    body { display: flex; flex-direction: column; min-height: 100dvh; }
     a { color: inherit; }
     button { cursor: pointer; font-family: inherit; }
     header, .note, main, footer { max-width: 72rem; margin: 0 auto; padding: 0 1.25rem; }
@@ -27,17 +28,15 @@
     .meta { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--muted); }
     .note { padding: .6rem 1.25rem; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
       background: var(--raised); font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--muted); }
-    main { display: grid; gap: 1rem; padding: 1.1rem 1.25rem 1.5rem; }
+    main { display: grid; gap: 1rem; padding: 1.1rem 1.25rem 1rem;
+      flex: 1; min-height: 0; width: 100%; }
     @media (min-width: 960px) {
-      main { grid-template-columns: 1.2fr .9fr; align-items: start; }
-      .tablewrap {
-        max-height: calc(100dvh - 13rem);
-        overflow: auto;
+      main { grid-template-columns: 1.2fr .9fr; align-items: stretch; }
+      main > section {
+        min-height: 0; display: flex; flex-direction: column; overflow: hidden;
       }
-      aside.card {
-        position: sticky; top: 12px; align-self: start;
-        max-height: calc(100dvh - 8rem); overflow: auto;
-      }
+      .tablewrap { flex: 1; min-height: 0; overflow: auto; }
+      aside.card { min-height: 0; overflow: auto; }
     }
     .tools { display: flex; flex-direction: column; gap: .5rem; margin-bottom: .75rem; }
     .chip-col { display: flex; flex-direction: column; gap: 4px; flex: 1; }
@@ -83,7 +82,7 @@
     dd.hot { color: var(--lime); }
     .sib { margin-top: 1rem; padding-top: .75rem; border-top: 1px solid var(--line);
       font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--muted); }
-    footer { padding: 1rem 1.25rem 2rem; font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--muted); }
+    footer { padding: 1rem 1.25rem 2rem; font-family: "IBM Plex Mono", monospace; font-size: 12px; flex: 0 0 auto; color: var(--muted); }
     footer button { margin-left: .5rem; height: 36px; padding: 0 .7rem; border: 1px solid var(--line);
       background: var(--surface); color: var(--fg); border-radius: 6px; font-family: inherit; font-size: 11px; }
     .head-actions { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
