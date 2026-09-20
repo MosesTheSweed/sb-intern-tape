@@ -119,12 +119,13 @@
     const ACT_RANK = { Alumnus: 5, Senior: 4, Junior: 3, Sophomore: 2, Freshman: 1 };
     const PUBLIC_FILTERS = [
       ["all", "All"], ["paying", "% > 0"], ["employed", "Live"], ["dormant", "Dormant"],
+      ["listed", "Listed"],
     ];
     const EDGE_FILTERS = [
       ["head", "Head 2.5"], ["coupon", "Coupon"],
     ];
     const PUBLIC_SORTS = [
-      ["best", "Best"], ["share", "Share"], ["id", "#"], ["status", "Status"],
+      ["best", "Best"], ["share", "Share"], ["ask", "Ask"], ["id", "#"], ["status", "Status"],
     ];
     const EDGE_SORTS = [["desk", "Desk"]];
 
@@ -167,6 +168,7 @@
         if (filter === "employed" && !live) return false;
         if (filter === "head" && !(live && on && i.sharePct >= 2.5)) return false;
         if (filter === "coupon" && !(live && on && i.sharePct >= 0.5)) return false;
+        if (filter === "listed" && !i.listed) return false;
         if (!needle) return true;
         return String(i.id).includes(needle) || String(i.parent).includes(needle)
           || (i.title || "").toLowerCase().includes(needle)
@@ -174,6 +176,7 @@
       });
       if (sort === "best") list.sort(cmpBest);
       else if (sort === "share") list.sort((a, b) => b.sharePct - a.sharePct || a.id - b.id);
+      else if (sort === "ask") list.sort((a, b) => (a.askEth == null) - (b.askEth == null) || (a.askEth || 0) - (b.askEth || 0) || a.id - b.id);
       else if (sort === "status") list.sort((a, b) => Number(dormant(a.status)) - Number(dormant(b.status)) || a.id - b.id);
       else if (sort === "desk") list.sort((a, b) => deskScore(b) - deskScore(a) || a.id - b.id);
       else list.sort((a, b) => a.id - b.id);
@@ -196,6 +199,7 @@
         <th><button type="button" data-s="id">Intern</button></th>
         <th>Parent</th>
         <th><button type="button" data-s="share">Share</button></th>
+        <th><button type="button" data-s="ask">Ask</button></th>
         <th>Title</th>
         <th><button type="button" data-s="status">Status</button></th>
         ${extra}
@@ -210,6 +214,7 @@
           <td>#${i.id} <span class="muted">${i.class || ""} ${i.version || ""}</span></td>
           <td>#${i.parent}</td>
           <td class="share">${i.share}</td>
+          <td class="${i.listed ? "share" : "muted"}">${i.askEth == null ? "—" : i.askEth.toFixed(3)}${i.vsFloor ? " ×" + i.vsFloor.toFixed(2) : ""}</td>
           <td class="muted">${i.title || ""}</td>
           <td class="muted">${i.status || ""}</td>
           ${showDesk ? `<td class="share">${deskScore(i)}</td><td class="muted">${combined(i).toFixed(2)}%</td>` : ""}
@@ -240,6 +245,9 @@
         ${!live ? `<p class="info">Dormant in parent TBA. No listing until the broker mints it out.</p>` : ""}
         <dl>
           <div><dt>Pay share</dt><dd class="hot">${row.share}</dd></div>
+          <div><dt>Ask</dt><dd class="hot">${row.askEth == null ? "unlisted" : row.askEth.toFixed(4) + " ETH"}</dd></div>
+          <div><dt>vs floor</dt><dd>${row.vsFloor == null ? "—" : row.vsFloor.toFixed(2) + "×  (floor " + (dump.floorEth || "—") + ")"}</dd></div>
+          <div><dt>Best bid</dt><dd>${row.offerEth == null ? "—" : row.offerEth.toFixed(4) + " ETH"}</dd></div>
           <div><dt>Job title</dt><dd>${row.title || "—"}</dd></div>
           <div><dt>Activation</dt><dd>${row.activation || "—"}</dd></div>
           <div><dt>Intern status</dt><dd>${row.status || "—"}</dd></div>
@@ -328,7 +336,7 @@
           (byParent[i.parent] || (byParent[i.parent] = [])).push(i);
         }
         document.getElementById("snapMeta").textContent =
-          `${d.sampled} / ${d.total} · ${d.updatedAt || "sample"}`;
+          `${d.sampled} / ${d.total} · floor ${d.floorEth ?? "—"} ETH · listed ${d.listedCount ?? "—"} · ${d.osUpdatedAt || d.updatedAt || ""}`;
         if (!d.interns.some((i) => i.id === 3474) && d.interns[0]) sel = d.interns[0].id;
         render();
       })
