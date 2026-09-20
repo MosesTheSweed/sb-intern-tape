@@ -65,6 +65,11 @@
     .foot { padding: .5rem .75rem; font-size: 11px; color: var(--muted); border-top: 1px solid var(--line); }
     .card { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 1rem; }
     .card-head { display: flex; justify-content: space-between; gap: .75rem; align-items: flex-start; }
+    .art {
+      display: block; width: 160px; height: 160px; margin: .85rem 0 0;
+      border-radius: 6px; border: 1px solid var(--line); background: var(--raised);
+      image-rendering: pixelated; object-fit: contain;
+    }
     h2 { margin: .1rem 0; font-size: 1.6rem; }
     .os, .connect {
       display: inline-flex; align-items: center; height: 44px; padding: 0 .9rem;
@@ -127,6 +132,8 @@
   <script>
     const TIP = "0x89DebA722c82cb078e9ca765338F01dbB1890C76";
     const ALLOW = ["0x89deba722c82cb078e9ca765338f01dbb1890c76"];
+    const CONTRACT = "0xfc4b0c4f464dc3037cf013934648a8a726d565a5";
+    const RPC = "https://rpc.mainnet.chain.robinhood.com";
     const MAX_ROWS = 400;
     const ACT_RANK = { Alumnus: 5, Senior: 4, Junior: 3, Sophomore: 2, Freshman: 1 };
     const PUBLIC_FILTERS = [
@@ -141,7 +148,7 @@
     ];
     const EDGE_SORTS = [["desk", "Desk"]];
     let dump = null, filter = "all", sort = "best", sel = 3474, q = "";
-    let account = null, byParent = {};
+    let account = null, byParent = {}; artCache = {};
     function desk() {
       return !!(account && ALLOW.includes(account));
     }
@@ -252,6 +259,7 @@
           </div>
           <a class="os ${live ? "" : "dim"}" href="${row.opensea}" target="_blank" rel="noreferrer">OpenSea</a>
         </div>
+        <img class="art" id="art" alt="" hidden />
         ${furlough ? `<p class="warn">Parent not Active — intern slice is furloughed.</p>` : ""}
         ${!live ? `<p class="info">Dormant in parent TBA. No listing until the broker mints it out.</p>` : ""}
         <dl>
@@ -272,6 +280,37 @@
         <p class="sib">${sib
           ? `Other intern on broker #${row.parent}: #${sib.id} · ${sib.share} · ${sib.title} · ${cap.toFixed(2)}% combined (cap 5%).`
           : "Sibling intern not in this snapshot."}</p>`;
+    }
+    function decodeAbiString(hex) {
+      const h = (hex || "").replace(/^0x/, "");
+      const off = parseInt(h.slice(0, 64), 16);
+      const ln = parseInt(h.slice(off * 2, off * 2 + 64), 16);
+      const start = off * 2 + 64;
+      let s = "";
+      for (let i = 0; i < ln; i++) s += String.fromCharCode(parseInt(h.slice(start + i * 2, start + i * 2 + 2), 16));
+      return s;
+    }
+    async function loadArt(id) {
+      const img = document.getElementById("art");
+      if (!img) return;
+      if (artCache[id]) { img.src = artCache[id]; img.hidden = false; return; }
+      try {
+        const calldata = "0xc87b56dd" + id.toString(16).padStart(64, "0");
+        const r = await fetch(RPC, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            jsonrpc: "2.0", id: 1, method: "eth_call",
+            params: [{ to: CONTRACT, data: calldata }, "latest"],
+          }),
+        });
+        const j = await r.json();
+        const uri = decodeAbiString(j.result);
+        const meta = JSON.parse(atob(uri.split(",", 1)[1]));
+        if (!meta.image) return;
+        artCache[id] = meta.image;
+        if (sel === id) { img.src = meta.image; img.hidden = false; }
+      } catch (e) {}
     }
     function renderConnect() {
       const b = document.getElementById("connectBtn");
