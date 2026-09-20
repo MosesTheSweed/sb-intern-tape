@@ -28,7 +28,13 @@
     .note { padding: .6rem 1.25rem; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
       background: var(--raised); font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--muted); }
     main { display: grid; gap: 1rem; padding: 1.1rem 1.25rem 1.5rem; }
-    @media (min-width: 960px) { main { grid-template-columns: 1.2fr .9fr; } }
+    @media (min-width: 960px) {
+      main { grid-template-columns: 1.2fr .9fr; align-items: start; }
+      aside.card {
+        position: sticky; top: 12px;
+        max-height: calc(100dvh - 24px); overflow: auto;
+      }
+    }
     .tools { display: flex; flex-direction: column; gap: .5rem; margin-bottom: .75rem; }
     @media (min-width: 640px) { .tools { flex-direction: row; } }
     input[type="search"] {
@@ -289,7 +295,11 @@
     document.getElementById("filters").addEventListener("click", (e) => {
       const b = e.target.closest("button");
       if (!b) return;
-      if (b.dataset.f) filter = b.dataset.f;
+      if (b.dataset.f) {
+        filter = b.dataset.f;
+        if (filter === "listed") sort = "ask";
+        if (filter === "head" || filter === "coupon") sort = "ask";
+      }
       if (b.dataset.s) sort = b.dataset.s;
       render();
     });
