@@ -15,7 +15,7 @@
     * { box-sizing: border-box; }
     html, body { margin: 0; background: var(--bg); color: var(--fg);
       font-family: "IBM Plex Sans", system-ui, sans-serif;
-      -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+      -webkit-font-smoothing: antialiased; overflow-x: clip; }
     a { color: inherit; }
     button { cursor: pointer; font-family: inherit; }
     header, .note, main, footer { max-width: 72rem; margin: 0 auto; padding: 0 1.25rem; }
@@ -30,9 +30,13 @@
     main { display: grid; gap: 1rem; padding: 1.1rem 1.25rem 1.5rem; }
     @media (min-width: 960px) {
       main { grid-template-columns: 1.2fr .9fr; align-items: start; }
+      .tablewrap {
+        max-height: calc(100dvh - 13rem);
+        overflow: auto;
+      }
       aside.card {
-        position: sticky; top: 12px;
-        max-height: calc(100dvh - 24px); overflow: auto;
+        position: sticky; top: 12px; align-self: start;
+        max-height: calc(100dvh - 8rem); overflow: auto;
       }
     }
     .tools { display: flex; flex-direction: column; gap: .5rem; margin-bottom: .75rem; }
