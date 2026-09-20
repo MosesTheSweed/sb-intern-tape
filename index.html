@@ -149,7 +149,7 @@
     ];
     const EDGE_SORTS = [["desk", "Desk"]];
     let dump = null, filter = "all", sort = "best", sel = 3474, q = "";
-    let account = null, byParent = {}; artCache = {};
+    let account = null, byParent = {}, artCache = {};
     function desk() {
       return !!(account && ALLOW.includes(account));
     }
@@ -308,11 +308,12 @@
         });
         const j = await r.json();
         const uri = decodeAbiString(j.result);
-        const meta = JSON.parse(atob(uri.split(",", 1)[1]));
+        const b64 = uri.slice(uri.indexOf(",") + 1);
+        const meta = JSON.parse(atob(b64));
         if (!meta.image) return;
         artCache[id] = meta.image;
         if (sel === id) { img.src = meta.image; img.hidden = false; }
-      } catch (e) {}
+      } catch (e) { console.warn("art", e); }
     }
     function renderConnect() {
       const b = document.getElementById("connectBtn");
