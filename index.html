@@ -18,7 +18,7 @@
       -webkit-font-smoothing: antialiased; overflow-x: hidden; }
     a { color: inherit; }
     button { cursor: pointer; font-family: inherit; }
-    header, .note, main { max-width: 72rem; margin: 0 auto; padding: 0 1.25rem; }
+    header, .note, main, footer { max-width: 72rem; margin: 0 auto; padding: 0 1.25rem; }
     header { display: flex; flex-wrap: wrap; gap: .75rem; align-items: end;
       justify-content: space-between; padding-top: 1rem; padding-bottom: .75rem; }
     .kicker { font-family: "IBM Plex Mono", monospace; font-size: 11px;
@@ -27,7 +27,7 @@
     .meta { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--muted); }
     .note { padding: .6rem 1.25rem; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
       background: var(--raised); font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--muted); }
-    main { display: grid; gap: 1rem; padding: 1.1rem 1.25rem 2.5rem; }
+    main { display: grid; gap: 1rem; padding: 1.1rem 1.25rem 1.5rem; }
     @media (min-width: 960px) { main { grid-template-columns: 1.2fr .9fr; } }
     .tools { display: flex; flex-direction: column; gap: .5rem; margin-bottom: .75rem; }
     @media (min-width: 640px) { .tools { flex-direction: row; } }
@@ -36,11 +36,14 @@
       color: var(--fg); padding: 0 .9rem; font-family: "IBM Plex Mono", monospace; font-size: 13px; border-radius: 6px;
     }
     .filters { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
-    .filters button {
+    @media (min-width: 800px) { .filters { grid-template-columns: repeat(8, 1fr); } }
+    .filters button, .connect {
       height: 44px; border: 1px solid var(--line); background: var(--surface); color: var(--muted);
       font-family: "IBM Plex Mono", monospace; font-size: 11px; border-radius: 6px;
     }
-    .filters button.on { background: var(--lime); color: var(--ink); border-color: var(--lime); }
+    .filters button.on, .connect.on { background: var(--lime); color: var(--ink); border-color: var(--lime); }
+    th button { all: unset; cursor: pointer; color: inherit; }
+    th button:hover { color: var(--lime); }
     .tablewrap { overflow-x: auto; border: 1px solid var(--line); background: var(--surface); border-radius: 6px; }
     table { width: 100%; border-collapse: collapse; font-family: "IBM Plex Mono", monospace; font-size: 13px; }
     th { text-align: left; color: var(--muted); font-weight: 500; font-size: 11px; padding: .5rem .75rem; border-bottom: 1px solid var(--line); }
@@ -54,10 +57,11 @@
     .card { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 1rem; }
     .card-head { display: flex; justify-content: space-between; gap: .75rem; align-items: flex-start; }
     h2 { margin: .1rem 0; font-size: 1.6rem; }
-    .os {
-      display: inline-flex; align-items: center; height: 44px; padding: 0 .9rem; background: var(--lime);
-      color: var(--ink); text-decoration: none; font-family: "IBM Plex Mono", monospace; font-size: 12px; border-radius: 6px;
+    .os, .connect {
+      display: inline-flex; align-items: center; height: 44px; padding: 0 .9rem;
+      text-decoration: none; font-family: "IBM Plex Mono", monospace; font-size: 12px; border-radius: 6px;
     }
+    .os { background: var(--lime); color: var(--ink); }
     .os.dim { background: transparent; color: var(--muted); border: 1px solid var(--line); }
     .warn { margin-top: .75rem; border: 1px solid color-mix(in srgb, var(--warn) 40%, transparent);
       background: color-mix(in srgb, var(--warn) 10%, transparent); color: var(--warn); padding: .55rem .7rem; font-size: 13px; border-radius: 6px; }
@@ -69,6 +73,10 @@
     dd.hot { color: var(--lime); }
     .sib { margin-top: 1rem; padding-top: .75rem; border-top: 1px solid var(--line);
       font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--muted); }
+    footer { padding: 1rem 1.25rem 2rem; font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--muted); }
+    footer button { margin-left: .5rem; height: 36px; padding: 0 .7rem; border: 1px solid var(--line);
+      background: var(--surface); color: var(--fg); border-radius: 6px; font-family: inherit; font-size: 11px; }
+    .head-actions { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
   </style>
 </head>
 <body>
@@ -77,9 +85,12 @@
       <p class="kicker">intern tape · robinhood chain</p>
       <h1>Stonk Interns research</h1>
     </div>
-    <p class="meta" id="snapMeta">loading snapshot…</p>
+    <div class="head-actions">
+      <p class="meta" id="snapMeta">loading snapshot…</p>
+      <button type="button" class="connect" id="connectBtn">Connect</button>
+    </div>
   </header>
-  <p class="note">Read-only. OpenSea is the buy button. Data is a pushed snapshot (Turbo Board model), not a live RPC from your browser.</p>
+  <p class="note">Read-only. OpenSea is the buy button. Snapshot is pushed from holmes, not a live RPC from your browser.</p>
   <main>
     <section>
       <div class="tools">
@@ -88,11 +99,7 @@
       </div>
       <div class="tablewrap">
         <table>
-          <thead>
-            <tr>
-              <th>Intern</th><th>Parent</th><th>Share</th><th>Title</th><th>Status</th>
-            </tr>
-          </thead>
+          <thead id="thead"></thead>
           <tbody id="tbody"></tbody>
         </table>
         <div class="foot" id="foot"></div>
@@ -100,60 +107,126 @@
     </section>
     <aside class="card" id="dossier">Select an intern.</aside>
   </main>
+  <footer>
+    Tip jar — ETH or $STONKBROKER on Robinhood Chain<br />
+    <span id="tipAddr">0x89DebA722c82cb078e9ca765338F01dbB1890C76</span>
+    <button type="button" id="copyTip">Copy</button>
+  </footer>
   <script>
-    const FILTERS = [
-      ["all", "All"],
-      ["paying", "% > 0"],
-      ["employed", "Live"],
-      ["dormant", "Dormant"],
+    const TIP = "0x89DebA722c82cb078e9ca765338F01dbB1890C76";
+    const ALLOW = ["0x89deba722c82cb078e9ca765338f01dbb1890c76"];
+    const MAX_ROWS = 400;
+    const ACT_RANK = { Alumnus: 5, Senior: 4, Junior: 3, Sophomore: 2, Freshman: 1 };
+    const PUBLIC_FILTERS = [
+      ["all", "All"], ["paying", "% > 0"], ["employed", "Live"], ["dormant", "Dormant"],
     ];
-    let dump = null, filter = "all", sel = 3474, q = "";
+    const EDGE_FILTERS = [
+      ["head", "Head 2.5"], ["coupon", "Coupon"],
+    ];
+    const PUBLIC_SORTS = [
+      ["best", "Best"], ["share", "Share"], ["id", "#"], ["status", "Status"],
+    ];
+    const EDGE_SORTS = [["desk", "Desk"]];
 
+    let dump = null, filter = "all", sort = "best", sel = 3474, q = "";
+    let account = null, byParent = {};
+
+    function desk() {
+      return !!(account && ALLOW.includes(account));
+    }
     function dormant(s) { return (s || "").toLowerCase().includes("dormant"); }
+    function parentOn(s) { return (s || "").toLowerCase() === "active"; }
     function shortAddr(a) {
       if (!a || a.length < 12) return a || "—";
       return a.slice(0, 6) + "…" + a.slice(-4);
     }
+    function combined(i) {
+      return (byParent[i.parent] || []).reduce((s, x) => s + (x.sharePct || 0), 0);
+    }
+    function deskScore(i) {
+      if (dormant(i.status) || !parentOn(i.parentStatus)) return 0;
+      return +(i.sharePct * (1 + (ACT_RANK[i.activation] || 0) * 0.15)).toFixed(3);
+    }
+    function cmpBest(a, b) {
+      const live = Number(!dormant(a.status)) - Number(!dormant(b.status));
+      if (live) return live;
+      const par = Number(parentOn(a.parentStatus)) - Number(parentOn(b.parentStatus));
+      if (par) return par;
+      if (b.sharePct !== a.sharePct) return b.sharePct - a.sharePct;
+      const act = (ACT_RANK[b.activation] || 0) - (ACT_RANK[a.activation] || 0);
+      if (act) return act;
+      return a.id - b.id;
+    }
     function rows() {
       const needle = q.trim().toLowerCase();
-      return dump.interns.filter((i) => {
+      const list = dump.interns.filter((i) => {
+        const live = !dormant(i.status);
+        const on = parentOn(i.parentStatus);
         if (filter === "paying" && i.sharePct <= 0) return false;
-        if (filter === "dormant" && !dormant(i.status)) return false;
-        if (filter === "employed" && dormant(i.status)) return false;
+        if (filter === "dormant" && live) return false;
+        if (filter === "employed" && !live) return false;
+        if (filter === "head" && !(live && on && i.sharePct >= 2.5)) return false;
+        if (filter === "coupon" && !(live && on && i.sharePct >= 0.5)) return false;
         if (!needle) return true;
         return String(i.id).includes(needle) || String(i.parent).includes(needle)
           || (i.title || "").toLowerCase().includes(needle)
           || (i.class || "").toLowerCase().includes(needle);
       });
+      if (sort === "best") list.sort(cmpBest);
+      else if (sort === "share") list.sort((a, b) => b.sharePct - a.sharePct || a.id - b.id);
+      else if (sort === "status") list.sort((a, b) => Number(dormant(a.status)) - Number(dormant(b.status)) || a.id - b.id);
+      else if (sort === "desk") list.sort((a, b) => deskScore(b) - deskScore(a) || a.id - b.id);
+      else list.sort((a, b) => a.id - b.id);
+      return list;
     }
     function renderFilters() {
-      document.getElementById("filters").innerHTML = FILTERS.map(([k, lab]) =>
-        `<button type="button" data-f="${k}" class="${filter === k ? "on" : ""}">${lab}</button>`
-      ).join("");
+      const extraF = desk() ? EDGE_FILTERS : [];
+      const extraS = desk() ? EDGE_SORTS : [];
+      document.getElementById("filters").innerHTML =
+        PUBLIC_FILTERS.concat(extraF).map(([k, lab]) =>
+          `<button type="button" data-f="${k}" class="${filter === k ? "on" : ""}">${lab}</button>`
+        ).join("") +
+        PUBLIC_SORTS.concat(extraS).map(([k, lab]) =>
+          `<button type="button" data-s="${k}" class="${sort === k ? "on" : ""}">${lab}</button>`
+        ).join("");
+    }
+    function renderHead() {
+      const extra = desk() ? `<th><button type="button" data-s="desk">Desk</button></th><th>Cap</th>` : "";
+      document.getElementById("thead").innerHTML = `<tr>
+        <th><button type="button" data-s="id">Intern</button></th>
+        <th>Parent</th>
+        <th><button type="button" data-s="share">Share</button></th>
+        <th>Title</th>
+        <th><button type="button" data-s="status">Status</button></th>
+        ${extra}
+      </tr>`;
     }
     function renderTable() {
       const list = rows();
-      document.getElementById("tbody").innerHTML = list.map((i) => `
+      const view = list.slice(0, MAX_ROWS);
+      const showDesk = desk();
+      document.getElementById("tbody").innerHTML = view.map((i) => `
         <tr class="row ${sel === i.id ? "sel" : ""}" data-id="${i.id}">
           <td>#${i.id} <span class="muted">${i.class || ""} ${i.version || ""}</span></td>
           <td>#${i.parent}</td>
           <td class="share">${i.share}</td>
           <td class="muted">${i.title || ""}</td>
           <td class="muted">${i.status || ""}</td>
+          ${showDesk ? `<td class="share">${deskScore(i)}</td><td class="muted">${combined(i).toFixed(2)}%</td>` : ""}
         </tr>`).join("");
-      const extra = dump.sampled < dump.total
-        ? `Sample of ${dump.sampled} / ${dump.total}. Run crawl_interns.py for the full set.`
-        : `${list.length} shown · ${dump.sampled} in snapshot`;
-      document.getElementById("foot").textContent = extra;
+      document.getElementById("foot").textContent =
+        `Showing ${view.length} of ${list.length} matches · ${dump.sampled}/${dump.total} in snapshot`;
     }
     function renderDossier() {
       const list = rows();
       const row = dump.interns.find((i) => i.id === sel) || list[0];
       const el = document.getElementById("dossier");
       if (!row) { el.textContent = "Select an intern."; return; }
-      const sib = dump.interns.find((i) => i.parent === row.parent && i.id !== row.id);
+      const sibs = (byParent[row.parent] || []).filter((x) => x.id !== row.id);
+      const sib = sibs[0];
       const live = !dormant(row.status);
-      const furlough = (row.parentStatus || "").toLowerCase() !== "active";
+      const furlough = !parentOn(row.parentStatus);
+      const cap = combined(row);
       el.innerHTML = `
         <div class="card-head">
           <div>
@@ -174,17 +247,48 @@
           <div><dt>Parent tier</dt><dd>${row.parentTier || "—"}</dd></div>
           <div><dt>Intern TBA</dt><dd>${shortAddr(row.wallet)}</dd></div>
           <div><dt>Owner</dt><dd>${shortAddr(row.owner)}</dd></div>
+          ${desk() ? `<div><dt>Desk score</dt><dd class="hot">${deskScore(row)}</dd></div>
+            <div><dt>Broker cap used</dt><dd>${cap.toFixed(2)}% / 5%</dd></div>` : ""}
         </dl>
         <p class="sib">${sib
-          ? `Other intern on broker #${row.parent}: #${sib.id} · ${sib.share} · ${sib.title} · ${(sib.sharePct + row.sharePct).toFixed(2)}% combined (cap 5%).`
-          : "Sibling intern not in this snapshot yet."}</p>`;
+          ? `Other intern on broker #${row.parent}: #${sib.id} · ${sib.share} · ${sib.title} · ${cap.toFixed(2)}% combined (cap 5%).`
+          : "Sibling intern not in this snapshot."}</p>`;
     }
-    function render() { renderFilters(); renderTable(); renderDossier(); }
+    function renderConnect() {
+      const b = document.getElementById("connectBtn");
+      if (desk()) {
+        b.textContent = "Desk " + shortAddr(account);
+        b.classList.add("on");
+      } else if (account) {
+        b.textContent = shortAddr(account);
+        b.classList.remove("on");
+      } else {
+        b.textContent = "Connect";
+        b.classList.remove("on");
+      }
+    }
+    function render() {
+      if (!dump) return;
+      if (!desk() && (filter === "head" || filter === "coupon")) filter = "employed";
+      if (!desk() && sort === "desk") sort = "best";
+      renderConnect();
+      renderFilters();
+      renderHead();
+      renderTable();
+      renderDossier();
+    }
 
     document.getElementById("filters").addEventListener("click", (e) => {
-      const b = e.target.closest("button[data-f]");
+      const b = e.target.closest("button");
       if (!b) return;
-      filter = b.dataset.f;
+      if (b.dataset.f) filter = b.dataset.f;
+      if (b.dataset.s) sort = b.dataset.s;
+      render();
+    });
+    document.getElementById("thead").addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-s]");
+      if (!b) return;
+      sort = b.dataset.s;
       render();
     });
     document.getElementById("tbody").addEventListener("click", (e) => {
@@ -197,11 +301,32 @@
       q = e.target.value;
       render();
     });
+    document.getElementById("connectBtn").addEventListener("click", async () => {
+      if (!window.ethereum) {
+        alert("No injected wallet. Use MetaMask / Rabby on this page.");
+        return;
+      }
+      const accs = await window.ethereum.request({ method: "eth_requestAccounts" });
+      account = (accs[0] || "").toLowerCase();
+      if (desk()) sort = "desk";
+      render();
+    });
+    document.getElementById("copyTip").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(TIP);
+        document.getElementById("copyTip").textContent = "Copied";
+        setTimeout(() => { document.getElementById("copyTip").textContent = "Copy"; }, 1200);
+      } catch (e) {}
+    });
 
     fetch("interns.json")
       .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then((d) => {
         dump = d;
+        byParent = {};
+        for (const i of d.interns) {
+          (byParent[i.parent] || (byParent[i.parent] = [])).push(i);
+        }
         document.getElementById("snapMeta").textContent =
           `${d.sampled} / ${d.total} · ${d.updatedAt || "sample"}`;
         if (!d.interns.some((i) => i.id === 3474) && d.interns[0]) sel = d.interns[0].id;
