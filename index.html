@@ -70,6 +70,7 @@
       border-radius: 6px; border: 1px solid var(--line); background: var(--raised);
       image-rendering: pixelated; object-fit: contain;
     }
+    .art[hidden] { display: none; }
     h2 { margin: .1rem 0; font-size: 1.6rem; }
     .os, .connect {
       display: inline-flex; align-items: center; height: 44px; padding: 0 .9rem;
@@ -280,6 +281,7 @@
         <p class="sib">${sib
           ? `Other intern on broker #${row.parent}: #${sib.id} · ${sib.share} · ${sib.title} · ${cap.toFixed(2)}% combined (cap 5%).`
           : "Sibling intern not in this snapshot."}</p>`;
+	loadArt(row.id);
     }
     function decodeAbiString(hex) {
       const h = (hex || "").replace(/^0x/, "");
